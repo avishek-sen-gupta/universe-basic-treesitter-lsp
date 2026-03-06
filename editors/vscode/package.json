@@ -1,0 +1,64 @@
+{
+  "name": "universe-basic",
+  "displayName": "UniVerse BASIC",
+  "description": "Language support for Rocket UniVerse BASIC (Pick BASIC)",
+  "version": "0.1.0",
+  "publisher": "avishek-sen-gupta",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "activationEvents": [
+    "onLanguage:universe-basic"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "universe-basic",
+        "aliases": [
+          "UniVerse BASIC",
+          "Pick BASIC",
+          "UNIBASIC"
+        ],
+        "extensions": [
+          ".bas",
+          ".b",
+          ".bp"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "configuration": {
+      "title": "UniVerse BASIC",
+      "properties": {
+        "universeBasic.lsp.serverPath": {
+          "type": "string",
+          "default": "",
+          "description": "Absolute path to the universe-basic-lsp executable. If empty, uses 'poetry run universe-basic-lsp' in the grammar project directory."
+        },
+        "universeBasic.lsp.projectPath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the universe-basic-treesitter-lsp project directory (used when serverPath is empty)."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "dependencies": {
+    "vscode-languageclient": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.75.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}

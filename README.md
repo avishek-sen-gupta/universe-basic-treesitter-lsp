@@ -55,15 +55,40 @@ poetry run universe-basic-lsp --tcp --port 2087
 
 #### VS Code
 
-Add to `.vscode/settings.json`:
+A bundled VS Code extension is in `editors/vscode/`.
+
+```sh
+cd editors/vscode
+npm install
+npm run compile
+```
+
+Then install it locally:
+
+```sh
+# Option 1: symlink for development
+ln -s "$(pwd)" ~/.vscode/extensions/universe-basic
+
+# Option 2: package as .vsix (requires vsce)
+npx @vscode/vsce package
+code --install-extension universe-basic-0.1.0.vsix
+```
+
+Configure the LSP server path in VS Code settings:
 
 ```json
 {
-  "universe-basic.lsp.path": "poetry run universe-basic-lsp"
+  "universeBasic.lsp.projectPath": "/path/to/universe-basic-treesitter-lsp"
 }
 ```
 
-Or configure a generic LSP client extension to run the server over stdio.
+Or, if you've installed `universe-basic-lsp` globally:
+
+```json
+{
+  "universeBasic.lsp.serverPath": "/path/to/universe-basic-lsp"
+}
+```
 
 #### Neovim (nvim-lspconfig)
 
@@ -117,6 +142,7 @@ universe_basic_lsp/         # LSP server package
   analyzer.py               # Parse tree analysis (symbols, diagnostics, definitions)
   keywords.py               # Keyword and built-in function documentation
 build/                      # Compiled grammar shared library
+editors/vscode/             # VS Code extension
 examples/                   # Example UniVerse BASIC source files
 reference/                  # Language reference documentation
 src/                        # Generated parser (auto-generated, gitignored)
