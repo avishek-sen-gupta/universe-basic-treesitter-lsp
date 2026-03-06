@@ -8,9 +8,11 @@ This project provides:
 
 1. A **Tree-sitter parser grammar** for UniVerse BASIC (Pick BASIC), enabling syntax highlighting, code navigation, and structural analysis.
 2. A **Language Server** (LSP) built with [pygls](https://github.com/openlawlibrary/pygls), providing IDE features for any editor that supports the Language Server Protocol.
+3. A **VS Code extension** with syntax coloring, language configuration, and LSP client integration.
 
 ## LSP Features
 
+- **Syntax Coloring** — Full TextMate grammar for keywords, strings, numbers, comments, labels, operators, built-in functions, @variables, and compiler directives
 - **Diagnostics** — Real-time parse error reporting via tree-sitter
 - **Document Symbols** — Outline of programs, subroutines, functions, labels, variables, constants, and arrays
 - **Go to Definition** — Jump to label, variable, subroutine, and equate definitions
@@ -18,7 +20,7 @@ This project provides:
 - **Hover** — Documentation for 100+ keywords and 60+ built-in functions
 - **Completion** — Auto-complete keywords, built-in functions (with snippets), and document symbols
 
-## Setup
+## Installation
 
 ### Prerequisites
 
@@ -26,55 +28,67 @@ This project provides:
 - Python 3.11+
 - [Poetry](https://python-poetry.org/)
 
-### Build the grammar
+### 1. Clone the repository
+
+```sh
+git clone git@github.com:avishek-sen-gupta/universe-basic-treesitter-lsp.git
+cd universe-basic-treesitter-lsp
+```
+
+### 2. Build the tree-sitter grammar
 
 ```sh
 npm install
 npx tree-sitter generate
+mkdir -p build
 npx tree-sitter build -o build/universe_basic.dylib   # macOS
 # npx tree-sitter build -o build/universe_basic.so    # Linux
 ```
 
-### Install the LSP server
+### 3. Install the Python LSP server
 
 ```sh
 poetry install
 ```
 
-### Run the LSP server
+Verify it works:
 
 ```sh
-# stdio (default, for editor integration)
-poetry run universe-basic-lsp
-
-# TCP (for development/debugging)
-poetry run universe-basic-lsp --tcp --port 2087
+poetry run python -m universe_basic_lsp --help
 ```
 
-### Editor Configuration
-
-#### VS Code
-
-A bundled VS Code extension is in `editors/vscode/`.
+### 4. Build the VS Code extension
 
 ```sh
 cd editors/vscode
 npm install
 npm run compile
+cd ../..
 ```
 
-Then install it locally:
+### 5. Install the extension into VS Code
+
+**Option A: Symlink (recommended for development)**
 
 ```sh
-# Option 1: symlink for development
-ln -s "$(pwd)" ~/.vscode/extensions/universe-basic
+ln -s "$(pwd)/editors/vscode" ~/.vscode/extensions/universe-basic
+```
 
-# Option 2: package as .vsix (requires vsce)
+**Option B: Package as .vsix**
+
+```sh
+cd editors/vscode
 npx @vscode/vsce package
 code --install-extension universe-basic-0.1.0.vsix
 ```
 
-Configure the LSP server path in VS Code settings:
+### 6. Configure VS Code
+
+Open VS Code settings (`Cmd+,` / `Ctrl+,`), search for "universe basic", and set:
+
+- **`universeBasic.lsp.projectPath`** — path to this repository's root directory
+
+Or add to your `settings.json`:
 
 ```json
 {
@@ -82,15 +96,52 @@ Configure the LSP server path in VS Code settings:
 }
 ```
 
-Or, if you've installed `universe-basic-lsp` globally:
+### 7. Restart VS Code and open a `.bas` file
 
-```json
-{
-  "universeBasic.lsp.serverPath": "/path/to/universe-basic-lsp"
-}
+You should see syntax coloring immediately, and LSP features (diagnostics, hover, completion, go-to-definition, etc.) once the server starts.
+
+## Testing the Extension with the Extension Development Host
+
+You can test the extension without installing it by using VS Code's built-in Extension Development Host:
+
+1. Open the `editors/vscode/` directory as a workspace in VS Code:
+   ```sh
+   code editors/vscode
+   ```
+
+2. Press **F5** (or go to **Run > Start Debugging**).
+
+3. A new VS Code window (the Extension Development Host) opens with the extension loaded. It automatically opens the `examples/` directory so you have `.bas` files to test with.
+
+4. Open `hello.bas` or `subroutine.bas` to see syntax coloring and LSP features in action.
+
+5. To see LSP server logs, open the Output panel (`View > Output`) and select **"UniVerse BASIC LSP"** from the dropdown.
+
+6. Changes to the extension source are picked up on the next F5 launch. Use `npm run watch` in the `editors/vscode/` directory for automatic TypeScript recompilation during development.
+
+## Running the LSP Server Standalone
+
+```sh
+# stdio (default, for editor integration)
+poetry run python -m universe_basic_lsp
+
+# TCP (for development/debugging)
+poetry run python -m universe_basic_lsp --tcp --port 2087
 ```
 
-#### Neovim (nvim-lspconfig)
+## Running Tests
+
+```sh
+# Run all tests (parser, analyzer, LSP server integration)
+poetry run pytest tests/ -v
+```
+
+The test suite includes:
+- **45 parser tests** — parsing of all language constructs
+- **19 analyzer tests** — symbol extraction, diagnostics, definitions
+- **11 server integration tests** — full LSP protocol tests over stdio
+
+## Neovim Configuration
 
 ```lua
 vim.api.nvim_create_autocmd("FileType", {
@@ -98,7 +149,7 @@ vim.api.nvim_create_autocmd("FileType", {
   callback = function()
     vim.lsp.start({
       name = "universe-basic-lsp",
-      cmd = { "poetry", "run", "universe-basic-lsp" },
+      cmd = { "poetry", "run", "python", "-m", "universe_basic_lsp" },
       root_dir = vim.fn.getcwd(),
     })
   end,
@@ -120,13 +171,6 @@ vim.api.nvim_create_autocmd("FileType", {
 - **Compiler Directives** — `$INCLUDE`, `$DEFINE`, `$IFDEF/$IFNDEF`, `$OPTIONS`, `$CHAIN`, `$MAP`
 - **Comments** — `*`, `!`, `REM`, `$*`
 
-## Testing the grammar
-
-```sh
-npx tree-sitter parse examples/hello.bas
-npx tree-sitter parse examples/subroutine.bas
-```
-
 ## Project Structure
 
 ```
@@ -141,8 +185,16 @@ universe_basic_lsp/         # LSP server package
   parser.py                 # Tree-sitter grammar loader
   analyzer.py               # Parse tree analysis (symbols, diagnostics, definitions)
   keywords.py               # Keyword and built-in function documentation
-build/                      # Compiled grammar shared library
+tests/                      # Test suite (pytest)
+  test_parser.py            # Tree-sitter parser tests
+  test_analyzer.py          # Analyzer unit tests
+  test_server.py            # LSP server integration tests
 editors/vscode/             # VS Code extension
+  src/extension.ts          # Extension entry point (LSP client)
+  syntaxes/                 # TextMate grammar for syntax coloring
+  language-configuration.json
+  .vscode/launch.json       # F5 Extension Development Host config
+build/                      # Compiled grammar shared library (gitignored)
 examples/                   # Example UniVerse BASIC source files
 reference/                  # Language reference documentation
 src/                        # Generated parser (auto-generated, gitignored)
