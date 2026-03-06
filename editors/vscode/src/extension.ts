@@ -18,26 +18,36 @@ export function activate(context: ExtensionContext) {
   let cwd: string | undefined;
 
   if (serverPath) {
-    // Use the configured server executable directly
     command = serverPath;
     args = [];
   } else if (projectPath) {
-    // Use poetry in the project directory
     command = "poetry";
-    args = ["run", "universe-basic-lsp"];
+    args = ["run", "python", "-m", "universe_basic_lsp"];
     cwd = projectPath;
   } else {
-    // Default: assume the extension is inside the project repo
     const defaultProjectPath = path.resolve(__dirname, "..", "..", "..");
     command = "poetry";
-    args = ["run", "universe-basic-lsp"];
+    args = ["run", "python", "-m", "universe_basic_lsp"];
     cwd = defaultProjectPath;
   }
+
+  const outputChannel = window.createOutputChannel("UniVerse BASIC LSP");
+  outputChannel.appendLine(`Starting LSP server: ${command} ${args.join(" ")}`);
+  outputChannel.appendLine(`Working directory: ${cwd || "(none)"}`);
+
+  // Inherit shell PATH so poetry/python are found
+  const env = { ...process.env };
+  const shell =
+    process.env.SHELL || (process.platform === "win32" ? "cmd.exe" : "/bin/sh");
 
   const serverOptions: ServerOptions = {
     command,
     args,
-    options: cwd ? { cwd } : undefined,
+    options: {
+      cwd,
+      env,
+      shell: true,
+    },
   };
 
   const clientOptions: LanguageClientOptions = {
@@ -45,6 +55,7 @@ export function activate(context: ExtensionContext) {
     synchronize: {
       fileEvents: workspace.createFileSystemWatcher("**/*.{bas,b,bp}"),
     },
+    outputChannel,
   };
 
   client = new LanguageClient(
@@ -55,8 +66,9 @@ export function activate(context: ExtensionContext) {
   );
 
   client.start().catch((err) => {
+    outputChannel.appendLine(`Failed to start server: ${err.message}`);
     window.showErrorMessage(
-      `Failed to start UniVerse BASIC LSP server: ${err.message}`
+      `UniVerse BASIC LSP failed to start. Check Output > "UniVerse BASIC LSP" for details.`
     );
   });
 }

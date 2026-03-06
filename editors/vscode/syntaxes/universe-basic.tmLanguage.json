@@ -1,0 +1,190 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "UniVerse BASIC",
+  "scopeName": "source.universe-basic",
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#compiler-directives" },
+    { "include": "#strings" },
+    { "include": "#numbers" },
+    { "include": "#labels" },
+    { "include": "#keywords-control" },
+    { "include": "#keywords-declaration" },
+    { "include": "#keywords-io" },
+    { "include": "#keywords-other" },
+    { "include": "#builtin-functions" },
+    { "include": "#at-variables" },
+    { "include": "#operators" },
+    { "include": "#identifiers" }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.star.universe-basic",
+          "match": "^\\s*\\*.*$"
+        },
+        {
+          "name": "comment.line.bang.universe-basic",
+          "match": "^\\s*!.*$"
+        },
+        {
+          "name": "comment.line.rem.universe-basic",
+          "match": "(?i)^\\s*REM\\b.*$"
+        },
+        {
+          "name": "comment.line.dollar-star.universe-basic",
+          "match": "^\\s*\\$\\*.*$"
+        }
+      ]
+    },
+    "compiler-directives": {
+      "patterns": [
+        {
+          "name": "keyword.control.directive.universe-basic",
+          "match": "(?i)^\\s*(\\$INCLUDE|\\$INSERT|#INCLUDE|\\$CHAIN|\\$DEFINE|\\$UNDEFINE|\\$IFDEF|\\$IFNDEF|\\$ELSE|\\$ENDIF|\\$OPTIONS|\\$COPYRIGHT|\\$PAGE|\\$EJECT|\\$MAP)\\b"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.universe-basic",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": []
+        },
+        {
+          "name": "string.quoted.single.universe-basic",
+          "begin": "'",
+          "end": "'",
+          "patterns": []
+        },
+        {
+          "name": "string.quoted.backslash.universe-basic",
+          "begin": "\\\\",
+          "end": "\\\\",
+          "patterns": []
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.float.universe-basic",
+          "match": "\\b\\d+\\.\\d+([eE][+-]?\\d+)?\\b"
+        },
+        {
+          "name": "constant.numeric.integer.universe-basic",
+          "match": "\\b\\d+\\b"
+        }
+      ]
+    },
+    "labels": {
+      "patterns": [
+        {
+          "name": "entity.name.label.universe-basic",
+          "match": "^\\s*([a-zA-Z][a-zA-Z0-9._$%]*)\\s*:",
+          "captures": {
+            "1": { "name": "entity.name.label.universe-basic" }
+          }
+        },
+        {
+          "name": "entity.name.label.numeric.universe-basic",
+          "match": "^\\s*(\\d+)\\s*:",
+          "captures": {
+            "1": { "name": "entity.name.label.numeric.universe-basic" }
+          }
+        }
+      ]
+    },
+    "keywords-control": {
+      "patterns": [
+        {
+          "name": "keyword.control.universe-basic",
+          "match": "(?i)\\b(IF|THEN|ELSE|END|BEGIN\\s+CASE|END\\s+CASE|CASE|FOR|TO|STEP|NEXT|LOOP|REPEAT|WHILE|UNTIL|DO|GOTO|GO\\s+TO|GOSUB|ON|CALL|RETURN|STOP|ABORT|EXIT|CONTINUE|BEGIN\\s+TRANSACTION|END\\s+TRANSACTION|COMMIT|ROLLBACK|ENTER|EXECUTE|PERFORM|CHAIN)\\b"
+        }
+      ]
+    },
+    "keywords-declaration": {
+      "patterns": [
+        {
+          "name": "keyword.declaration.universe-basic",
+          "match": "(?i)\\b(PROGRAM|SUBROUTINE|FUNCTION|DEFFUN|DIM|DIMENSION|COMMON|EQUATE|EQU|LET|MAT)\\b"
+        }
+      ]
+    },
+    "keywords-io": {
+      "patterns": [
+        {
+          "name": "keyword.other.io.universe-basic",
+          "match": "(?i)\\b(OPEN|OPENPATH|OPENSEQ|OPENDEV|CLOSE|CLOSESEQ|READ|READL|READU|READV|READVL|READVU|MATREAD|MATREADL|MATREADU|READSEQ|READBLK|READNEXT|READLIST|READT|WRITE|WRITEU|WRITEV|WRITEVU|MATWRITE|MATWRITEU|WRITESEQ|WRITESEQF|WRITEBLK|WRITELIST|WRITET|DELETE|DELETEU|DELETELIST|LOCK|UNLOCK|RELEASE|FILELOCK|FILEUNLOCK|SELECT|SSELECT|CLEARSELECT|CLEARFILE|GETLIST|BSCAN|SEEK|WEOFSEQ|WEOF|REWIND|NOBUF|FLUSH|GET|GETX|SEND|PRINT|CRT|DISPLAY|INPUT|INPUTIF|HEADING|HEADINGE|HEADINGN|FOOTING|PAGE|PRINTER|TPRINT|DATA|CLEARDATA)\\b"
+        }
+      ]
+    },
+    "keywords-other": {
+      "patterns": [
+        {
+          "name": "keyword.other.universe-basic",
+          "match": "(?i)\\b(SWAP|CLEAR|LOCATE|FIND|FINDSTR|INS|DEL|REMOVE|CONVERT|MATPARSE|MATBUILD|SLEEP|NAP|PRECISION|RANDOMIZE|PROCREAD|PROCWRITE|TIMEOUT|PROMPT|TABSTOP|HUSH|BREAK|ECHO|ERRMSG|PRINTERR|NULL|FROM|SETTING|USING|BY|IN|LOCKED|CREATE|STATUS|TTYCTL|TTYGET|TTYSET|INPUTTRAP|KEYEDIT|KEYTRAP|KEYEXIT|INPUTCLEAR|CLEARPROMPTS)\\b"
+        }
+      ]
+    },
+    "builtin-functions": {
+      "patterns": [
+        {
+          "name": "support.function.universe-basic",
+          "match": "(?i)\\b(ABS|ALPHA|ASCII|CATS|CHANGE|CHAR|COL1|COL2|COS|COUNT|DATE|DCOUNT|DOWNCASE|DQUOTE|EBCDIC|EREPLACE|EXCHANGE|EXP|EXTRACT|FIELD|FIELDSTORE|FMT|FOLD|ICONV|INDEX|INMAT|INSERT|INT|ITYPE|LEN|LENDP|LN|LOWER|MATCHFIELD|MOD|NEG|NOT|NUM|OCONV|PWR|RAISE|REM|REPLACE|RND|SEQ|SIN|SPACE|SPLICE|SQRT|SQUOTE|STATUS|STR|SUBSTRINGS|SUM|SYSTEM|TAN|TIME|TIMEDATE|TRIM|TRIMB|TRIMBS|TRIMF|TRIMFS|UPCASE|XLATE)(?=\\s*\\()"
+        }
+      ]
+    },
+    "at-variables": {
+      "patterns": [
+        {
+          "name": "variable.language.at.universe-basic",
+          "match": "(?i)@(NULL|TRUE|FALSE|FM|VM|SM|SVM|TM|AM|IM|RECORD|ID|DICT|FILENAME|PATH|RECCOUNT|RECUR0|RECUR1|RECUR2|RECUR3|RECUR4|SELECTED|SYSTEM\\.RETURN\\.CODE|USER\\.RETURN\\.CODE|TRANSACTION|ISOLATION|LEVEL|CONV|ICONV|NI|NV|NS|MV|NB|ND|SENTENCE|COMMAND|LOGNAME|USERNO|WHO|SCHEMA|TABLE|OPTION)\\b"
+        },
+        {
+          "name": "support.function.at.universe-basic",
+          "match": "@\\("
+        }
+      ]
+    },
+    "operators": {
+      "patterns": [
+        {
+          "name": "keyword.operator.logical.universe-basic",
+          "match": "(?i)\\b(AND|OR|NOT)\\b"
+        },
+        {
+          "name": "keyword.operator.comparison.universe-basic",
+          "match": "(?i)\\b(EQ|NE|LT|GT|LE|GE|MATCH|MATCHES)\\b"
+        },
+        {
+          "name": "keyword.operator.string.universe-basic",
+          "match": "(?i)\\b(CAT)\\b"
+        },
+        {
+          "name": "keyword.operator.assignment.universe-basic",
+          "match": "\\+=|-=|:="
+        },
+        {
+          "name": "keyword.operator.comparison.symbol.universe-basic",
+          "match": "<>|><|<=|>=|=>|=<|#>|#<|[<>=:#]"
+        },
+        {
+          "name": "keyword.operator.arithmetic.universe-basic",
+          "match": "[+\\-*/^]|\\*\\*"
+        }
+      ]
+    },
+    "identifiers": {
+      "patterns": [
+        {
+          "name": "variable.other.universe-basic",
+          "match": "\\b[a-zA-Z$][a-zA-Z0-9._$%]*\\b"
+        }
+      ]
+    }
+  }
+}
