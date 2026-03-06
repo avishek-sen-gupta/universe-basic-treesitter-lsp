@@ -31,6 +31,7 @@ module.exports = grammar({
     [$.lhs_expression, $.primary_expression],
     [$._expression, $.lhs_expression],
     [$.statement_label, $.primary_expression],
+    [$.concatenation_expression],
   ],
 
   rules: {
@@ -79,6 +80,12 @@ module.exports = grammar({
     statement_label: $ => choice(
       seq($.numeric_label, optional(':')),
       seq($.identifier, ':'),
+      seq($._keyword_as_label, ':'),
+    ),
+
+    _keyword_as_label: _ => choice(
+      ci('EXIT'), ci('RETURN'), ci('STOP'), ci('END'),
+      ci('NULL'), ci('CONTINUE'), ci('DEBUG'),
     ),
 
     numeric_label: _ => /[0-9]+/,
@@ -364,6 +371,7 @@ module.exports = grammar({
       ci('DEFFUN'),
       $.identifier,
       optional($.parameter_list),
+      optional(seq(ci('CALLING'), choice($.string, $.identifier))),
     ),
 
     parameter_list: $ => seq('(', commaSep($._expression), ')'),
@@ -550,7 +558,11 @@ module.exports = grammar({
     // =========================================
     call_statement: $ => seq(
       ci('CALL'),
-      choice($.identifier, seq('@', $.identifier)),
+      choice(
+        $.identifier,
+        seq('@', $.identifier),
+        seq('*', $.identifier),
+      ),
       optional($.argument_list),
     ),
 
@@ -1081,6 +1093,8 @@ module.exports = grammar({
         seq($._end_else, $._newline, optional($._body), ci('END')),
         ci('END'),
       )),
+      // Multi-line standalone ELSE: ELSE \n body END
+      seq(ci('ELSE'), $._newline, optional($._body), ci('END')),
     )),
 
     _on_error_clause: $ => seq(ci('ON'), ci('ERROR'), $._then_body),
@@ -1099,6 +1113,7 @@ module.exports = grammar({
       $.if_expression,
       $.function_call,
       $.at_variable,
+      $.at_function,
       $.parenthesized_expression,
       $.dynamic_array_access,
       $.substring_expression,
@@ -1152,11 +1167,10 @@ module.exports = grammar({
       $._expression,
     )),
 
-    concatenation_expression: $ => prec.left(4, seq(
-      $._expression,
-      choice(':', ci('CAT')),
-      $._expression,
-    )),
+    concatenation_expression: $ => choice(
+      prec.left(4, seq($._expression, choice(':', ci('CAT')), $._expression)),
+      prec(4, seq($._expression, ':')),
+    ),
 
     match_expression: $ => prec.left(3, seq(
       $._expression,
@@ -1216,12 +1230,16 @@ module.exports = grammar({
       $.argument_list,
     )),
 
-    argument_list: $ => seq('(', optional(commaSep1($._expression)), ')'),
+    argument_list: $ => seq('(', optional(commaSep1(choice($._expression, $.mat_argument))), ')'),
+
+    mat_argument: $ => seq(ci('MAT'), $.identifier),
 
     // =========================================
     // @Variables
     // =========================================
     at_variable: _ => token(seq('@', /[a-zA-Z][a-zA-Z0-9._]*/)),
+
+    at_function: $ => seq('@', '(', $._expression, optional(seq(',', $._expression)), ')'),
 
     // =========================================
     // Terminals
