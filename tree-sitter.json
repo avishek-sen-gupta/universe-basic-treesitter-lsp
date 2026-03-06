@@ -1,0 +1,17 @@
+{
+  "grammars": [
+    {
+      "name": "universe_basic",
+      "camelCase": "universeBasic",
+      "scope": "source.universe-basic",
+      "file-types": ["bas"],
+      "path": "."
+    }
+  ],
+  "metadata": {
+    "version": "0.1.0",
+    "license": "MIT",
+    "description": "Tree-sitter grammar for UniVerse BASIC",
+    "links": {}
+  }
+}
