@@ -1,3 +1,5 @@
 fileignoreconfig:
 - filename: package-lock.json
   checksum: 936fcc1ea7cad2f4e8f08b5dfabf5881241575072776a596dfe65350f834f21a
+- filename: poetry.lock
+  checksum: f2da17fabef873cad77ff3c91cc33f399ee196ac70901b26fdc8686da4486c84
